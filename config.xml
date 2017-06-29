@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="fi.metatavu.kangastusApp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Kangastus App</name>
+    <description>Application to display Kangastus info TV screens</description>
+    <author email="info@metatavu.fi" href="https://metatavu.fi">Metatavu Oy</author>
+    <content src="index.html" />
+    <access origin="https://ssl.gstatic.com" />
+    <access origin="https://cdn.metatavu.io" />
+    <access origin="http://local-shady.metatavu.io:1234" />
+    <access origin="https://pakkasmarja-berries.metatavu.io" />
+    <access origin="https://staging-hallinta-pakkasmarja.metatavu.io" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="ws://*/*" />
+    <allow-intent href="wss://*/*" />
+    <preference name="orientation" value="portrait" />
+    <preference name="target-device" value="handset" />
+    <engine name="browser" spec="^4.1.0" />
+    <plugin name="cordova-plugin-whitelist" spec="~1.3.2" />
+    <plugin name="cordova-sqlite-storage" spec="~2.0.4" />
+</widget>

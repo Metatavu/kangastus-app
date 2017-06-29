@@ -1,0 +1,25 @@
+doctype html
+html
+  head
+    meta(http-equiv='Content-Security-Policy', content="default-src " + generic.defaultSrc + "; style-src " + generic.styleSrc + "; media-src "  + generic.mediaSrc)
+    meta(name='format-detection', content='telephone=no')
+    meta(name='msapplication-tap-highlight', content='no')
+    meta(name='viewport', content='user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width')
+    meta(charset='UTF-8')
+    // bower:css 
+    // endbower 
+    link(rel='stylesheet', href='css/kangastus.min.css')
+    link(rel='stylesheet', href='css/overrides.css')
+    script(src="cordova.js",type="text/javascript")
+    // bower:js 
+    // endbower 
+    script(src='js/config.js')
+    script(src='js/pug-templates.js')
+    script(src='https://cdn.metatavu.io/libs/tools/debug/0.0.4/debug.js')
+    script(src='js/kangastus-wordpress.js')
+    script(src='js/kangastus-database.js')
+    script(src='js/kangastus.js')
+    title Kangastus
+  body
+    .index-container
+    .page-container

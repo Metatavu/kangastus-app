@@ -1,0 +1,7 @@
+.page
+  each item in items 
+    .kangastus-item(style="background-image: url(" + item['better_featured_image']['source_url'] + ")")
+      h1
+        =item.title.rendered
+      div
+        !=item.content.rendered
