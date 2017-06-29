@@ -134,9 +134,5 @@
     }
     
   });
-  
-  $(document).on("deviceready", () => {
-    $(document.body).kangastus();      
-  });
 
 })();

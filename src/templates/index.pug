@@ -15,11 +15,39 @@ html
     // endbower 
     script(src='js/config.js')
     script(src='js/pug-templates.js')
-    script(src='https://cdn.metatavu.io/libs/tools/debug/0.0.4/debug.js')
+    //script(src='https://cdn.metatavu.io/libs/tools/debug/0.0.4/debug.js')
     script(src='js/kangastus-wordpress.js')
     script(src='js/kangastus-database.js')
+    script(src='js/kangastus-animation.js')
     script(src='js/kangastus.js')
     title Kangastus
-  body
+  body(oncontextmenu="return false", ondragstart="return false", onselectstart="return false")
     .index-container
     .page-container
+      .swiper-container(data-tag='matkalla-mikkelissa')
+        .swiper-wrapper
+          .swiper-slide Matka 1
+          .swiper-slide Matka 2
+        // Add Pagination
+        .swiper-pagination
+        // Add Arrows
+        .swiper-button-next
+        .swiper-button-prev
+      .swiper-container(data-tag='eroa-kiireesta')
+        .swiper-wrapper
+          .swiper-slide Kiire 1
+          .swiper-slide Kiire 2
+        // Add Pagination
+        .swiper-pagination
+        // Add Arrows
+        .swiper-button-next
+        .swiper-button-prev
+      .swiper-container(data-tag='miksei-mikkeli')
+        .swiper-wrapper
+          .swiper-slide Miksi 1
+          .swiper-slide Miksi 2
+        // Add Pagination
+        .swiper-pagination
+        // Add Arrows
+        .swiper-button-next
+        .swiper-button-prev

@@ -7,7 +7,7 @@
   $.widget("custom.kangastusWordpress", {
     
     options: {
-      host: 'local-shady.metatavu.io',
+      host: 'info-local.metatavu.io',
       port: 1234,
       secure: false
     },
@@ -19,7 +19,7 @@
     listKangastusItems() {
       return new Promise((resolve, reject) => {
         $.ajax({
-          url: 'http://local-shady.metatavu.io:1234/wp-json/wp/v2/kangastus/',
+          url: 'http://info-local.metatavu.io:1234/wp-json/wp/v2/kangastus/',
           success: (data) => {
             resolve(data);
           },
@@ -29,10 +29,6 @@
         });
       }); 
     }
-  });
-  
-  $(document).on("deviceready", () => {
-    $(document.body).kangastus();      
   });
 
 })();

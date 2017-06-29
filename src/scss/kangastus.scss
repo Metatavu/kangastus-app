@@ -1,31 +1,86 @@
+html, body {
+  position: relative;
+  height: 100%;
+}
+body {
+  background: #eee;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color:#000;
+  margin: 0;
+  padding: 0;
+}
 .index {
+  background-color: #eef0d8;
+  
   .kangastus-item {
-    height: 33.35vh; 
+    padding-top: 150px;
+    text-align: center;
+    background-size: cover;
+    height: 33vh;
+    margin-bottom: 5px;
+    
     
     h1,
     div {
       color: #fff;
     }
     
+    .index-title {
+      font-size: 54px;
+      z-index: 5;
+    }
+    
+    .index-content {
+      font-size: 28px;
+      z-index: 5;
+    }
+    
+    .index-icon {
+      font-size: 72px;
+      z-index: 5;
+    }
   }
-  
 }
 
 .page-container {
-  height: 100vh;
-  width: 100vw;
-}
+  display: none;
+  height: 100%;
+  
+  .swiper-container {
+    width: 100%;
+    height: 100%;
+  }
+  .swiper-slide {
+    text-align: center;
+    font-size: 28px;
+    background: #fff;
+    height: 100%;
+  }
 
-.page {
-  
-  .kangastus-item {
+  .page {
+    height: 100%;
     
-  
-    h1,
-    div {
-      color: #fff;
+    .page-featured-image {
+      height: 50%;
+      width: 100%;
+      background-size: cover;
+      background-repeat: no-repeat;
     }
     
+    .page-content-container {
+      padding: 30px;
+      
+      .page-title {
+        color: #205092;
+        margin-top: 35px;
+        margin-bottom: 35px;
+        font-size: 54px;
+      }
+      
+      .page-content {
+        color: #000205;
+      }
+    }
   }
-  
 }
