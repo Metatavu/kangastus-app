@@ -15,6 +15,7 @@
       $(document.body).kangastusWordpress();    
       $(document.body).kangastusDatabase();
       $(document.body).kangastusAnimation();
+      $(document.body).kangastusWeather(getConfig().weather);
       
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
       $(document.body).on("touchend", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchEnd, this));
@@ -42,6 +43,13 @@
         $(containerSelector).hide();
       });
       
+      $(document.body).kangastusWeather('getTemperature')
+         .then((temperature) => {
+           console.log(temperature);
+        })
+        .catch((err) => {
+          console.log("ERROR: " + err);
+        });
     },
     
     

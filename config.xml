@@ -11,6 +11,7 @@
     <access origin="https://staging-hallinta-pakkasmarja.metatavu.io" />
     <access origin="http://10.0.2.2:1234" />
     <access origin="http://info-local.metatavu.io:1234" />
+    <access origin="http://data.fmi.fi" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="ws://*/*" />

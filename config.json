@@ -4,8 +4,13 @@
     "port": 1234,
     "secure": false
   },
+  "weather": {
+    "apiKey": "api-key",
+    "wfsUrl": "http://data.fmi.fi",
+    "place": "mikkeli"
+  },
   "generic": {
-    "defaultSrc": "'self' http: https: data: gap: ws: wss: staging-hallinta-pakkasmarja.metatavu.io https://ssl.gstatic.com *.metatavu.io 10.0.2.2:1234 http://info-local.metatavu.io:1234 http://local-shady.metatavu.io:1234 'unsafe-inline'",
+    "defaultSrc": "'self' http: https: data: gap: ws: wss: data.fmi.fi staging-hallinta-pakkasmarja.metatavu.io https://ssl.gstatic.com *.metatavu.io 10.0.2.2:1234 http://info-local.metatavu.io:1234 http://local-shady.metatavu.io:1234 'unsafe-inline'",
     "styleSrc": "'self' http: https: staging-hallinta-pakkasmarja.metatavu.io *.metatavu.io http://local-shady.metatavu.io:1234 'unsafe-inline'",
     "mediaSrc": "*"
   }
