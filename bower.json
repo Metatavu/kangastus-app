@@ -26,7 +26,6 @@
     "animate.css": "^3.5.2",
     "swiper": "^3.4.2",
     "components-font-awesome": "^4.7.0",
-    "lodash": "^4.17.4",
-    "abdmob/x2js": "^1.2.0"
+    "lodash": "^4.17.4"
   }
 }

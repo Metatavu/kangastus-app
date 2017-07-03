@@ -4,65 +4,43 @@
 (function(){
   'use strict';
   
-  $.widget("custom.kangastusWeather", {
-    
+  $.widget("custom.kangastusWeather", { 
     options: {
       apiKey: '',
-      wfsUrl: '',
+      weatherUrl: '',
       place: ''
     },
     
     _create : function() {
+      this.updateTemperature();
       
+      setInterval(() => {
+        this.updateTemperature();
+      }, 1000 * 60 * 30 );
     },
     
-    getTemperatures: function (apiKey, place) {
+    getWeatherData: function() {
       return new Promise((resolve, reject) => {
-        const url = `${this.options.wfsUrl}/fmi-apikey/${this.options.apiKey}/wfs?request=getFeature&storedquery_id=fmi::forecast::harmonie::hybrid::point::simple&place=${this.options.place}`;
-       
-        $.ajax({
-          type : "GET",
-          dataType: "text",
-          processData: false,
-          url: url,  
-          success: (data) => {
-            const x2js = new X2JS();
-            const result = x2js.xml_str2json(data);
-            
-            const temperatureMembers = _.filter(result['FeatureCollection']['member'], (member) => {
-              const element = member['BsWfsElement'];
-              const param = element['ParameterName'].toString();
-              return "Temperature" === param;
-            });
-
-            const values = _.filter(_.map(temperatureMembers, (temperatureMember) => {
-              const element = temperatureMember['BsWfsElement'];
-              const value = element['ParameterValue'].toString();
-              return {
-                'time': new Date(Date.parse(element['Time'].toString())),
-                'value': parseFloat(value)
-              };
-            }), (object) => { return !!object.value; });
-
-            resolve(values);
-          },
-          error: (jqXHR, textStatus, errorThrown) => {
-            reject(errorThrown || textStatus);
-          }
+        $.getJSON(`${this.options.weatherUrl}/data/2.5/weather?q=${this.options.place}&APPID=${this.options.apiKey}`, (res) => {
+          resolve(res.main);
+        })
+        .fail((err) => {
+         reject(err);
         });
-        
       });
     },
     
-    getTemperature: function () {
-      return this.getTemperatures()
-       .then((temperatures) => {
-         if (temperatures && temperatures.length) {
-           return temperatures[0];
-         }
-
-         return null;
-       });
+    updateTemperature: function () {
+      this.getWeatherData()
+        .then((weather) => {
+          const kelvin = weather.temp;
+          const celsius = Math.round(kelvin - 273.15);
+          const displayTemp = ( celsius < 0 ? '' : '+') + celsius;
+          $(this.element).find('.temp-display').text(`${displayTemp}°C`);
+        })
+        .catch((err) => {
+          console.log("ERROR: " + err);
+        });
     }
   });
 

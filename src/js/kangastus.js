@@ -15,77 +15,112 @@
       $(document.body).kangastusWordpress();    
       $(document.body).kangastusDatabase();
       $(document.body).kangastusAnimation();
-      $(document.body).kangastusWeather(getConfig().weather);
+      //$(document.body).kangastusWeather(getConfig().weather);
       
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
       $(document.body).on("touchend", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchEnd, this));
-      $(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
+      //$(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
       
-      this.swipers = {};
-      this.activeSwiper = null;
       this.updateIndex = 0;
-      this.options.availableTags.forEach((tag) => {
-        let containerSelector = `.swiper-container[data-tag="${tag}"]`;
-        this.swipers[tag] = new Swiper(containerSelector, {
-            pagination: '.swiper-pagination',
-            paginationClickable: true,
-            nextButton: '.swiper-button-next',
-            prevButton: '.swiper-button-prev',
-            spaceBetween: 30,
-            onReachEnd: (swiper) => {
-              if(swiper.container.attr('data-tag') === this.activeSwiper) {
-                this._hidePageContainer(); 
-              }
-            },
-            loop: true
-        });
-        
-        $(containerSelector).hide();
+      this.targetPage = null;
+      this.swiper = null;
+      this._resetSwiper((swiper) => {
+        this._onIndexSlideVisible(swiper);
       });
-      
-      $(document.body).kangastusWeather('getTemperature')
-         .then((temperature) => {
-           console.log(temperature);
-        })
-        .catch((err) => {
-          console.log("ERROR: " + err);
-        });
+    },
+
+    _onIndexSlideVisible: function(swiper) {
+      swiper.lockSwipes();
+      $('.swiper-pagination').hide();
+      $('.swiper-button-next').hide();
+      $('.swiper-button-prev').hide();
     },
     
-    
-    _renderSlidesByTag: function(tag) {
-      if (tag === this.activeSwiper) {
-        return;
+    _onContentSlideVisible: function() {
+      $('.swiper-pagination').show();
+      $('.swiper-button-next').show();
+      $('.swiper-button-prev').show();
+    },
+
+    _resetSwiper: function(callback) {
+      if (this.swiper) {
+        this.swiper.destroy();
       }
       
+      this.swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        paginationType: 'custom',
+        paginationClickable: false,
+        paginationCustomRender: function (swiper, current, total) {
+          return `${current - 1} / ${total - 1}`;
+        },
+        nextButton: '.swiper-button-next',
+        prevButton: '.swiper-button-prev',
+        slidesPerView: 1,
+        centeredSlides: true,
+        spaceBetween: 30,
+        onSlideChangeEnd: (swiper) => {
+          const slideIndex = $('.swiper-slide-active').data("swiper-slide-index");
+          if (!slideIndex || slideIndex == 0) {
+            this._onIndexSlideVisible(swiper);
+          }
+        },
+        loop: true,
+        loopedSlides: 0
+      });
+      
+      if (typeof callback === 'function') {
+        callback(this.swiper);
+      }
+    },
+
+    _renderSlidesByTag: function(tag) {      
       $(document.body).kangastusDatabase('listKangastusItemsByTag', tag)
         .then((items) => {
-          if (tag === this.activeSwiper) {
-            return;
-          }
+
           const slides = [];
           items.forEach((item) => {
             slides.push(pugKangastusPage({
               item: item
             }));
           });
-          
-          if (tag !== this.activeSwiper) {
-            this.swipers[tag].removeAllSlides();
-            this.swipers[tag].prependSlide(slides);
+
+          const slideCount = this.swiper.slides.length;
+          if (slideCount > 1) {
+            const slidesToRemove = [];
+            for(let i = 1; i < slideCount; i++) {
+              slidesToRemove.push(i);
+            }
+            this.swiper.removeSlide(slidesToRemove);
           }
+
+          this.swiper.appendSlide(slides);
+          this._resetSwiper(() => {
+            this.swiper.unlockSwipes();
+            this.swiper.slideNext();
+            this._onContentSlideVisible();
+          });
+
         })
         .catch((err) => {
           console.log('ERROR:' + err);
         });
-    },
+    }, 
     
     _renderIndex: function () {
       $(document.body).kangastusDatabase('listKangastusItemsByTag', 'etusivu')
         .then((items) => {
-          $('.index-container').html(pugKangastusIndex({
+          const indexHtml = pugKangastusIndex({
             items: items
-          }));
+          });
+          
+          if ($('.index').length > 0) {
+            $('.index').replaceWith($(indexHtml));
+          } else {
+            $('.content-container').append($(indexHtml));
+          }
+          
+          this.swiper.update();
         })
         .catch((err) => {
           console.log(err);
@@ -123,33 +158,12 @@
         return;
       }
       
-      $(document.body).kangastusAnimation('animate', '.index-container', 'slideOutLeft', () => {
-        $('.index-container').hide();
-      });
-      
-      $('.page-container').show();
-      $(`.swiper-container[data-tag="${targetPage}"]`).show();
-      this.swipers[targetPage].update(true);
-      this.activeSwiper = targetPage;
+      this._renderSlidesByTag(targetPage);
+    },
 
-      $(document.body).kangastusAnimation('animate', '.page-container', 'slideInRight');
-    },
-    
-    _hidePageContainer: function() {
-      $(document.body).kangastusAnimation('animate', '.index-container', 'slideInRight');
-      $('.index-container').show();
-      
-      $(document.body).kangastusAnimation('animate', '.page-container', 'slideOutLeft', () => {
-        $('.page-container').hide();
-        $(`.swiper-container[data-tag="${this.activeSwiper}"]`).hide();
-        this.activeSwiper = null;
-      });
-    },
-    
     _onDatabaseInitialized: function () {
       setInterval($.proxy(this._update, this), 5000);
       setInterval(() => {
-        this._renderSlidesByTag(this.options.availableTags[this.updateIndex]);
         this.updateIndex = (this.updateIndex + 1) % this.options.availableTags.length;
       }, 2000);
       setInterval($.proxy(this._renderIndex, this), 5000);
