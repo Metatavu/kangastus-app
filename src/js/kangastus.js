@@ -80,9 +80,9 @@
 
           const slides = [];
           items.forEach((item) => {
-            slides.push(pugKangastusPage({
+            slides.push(this._preProcessPage(pugKangastusPage({
               item: item
-            }));
+            })));
           });
 
           const slideCount = this.swiper.slides.length;
@@ -106,6 +106,19 @@
           console.log('ERROR:' + err);
         });
     }, 
+    
+    _preProcessPage: function (html) {
+      $(html).find('a').each((index, link) => {
+        const text = $(link).text();
+        const link = $(link).attr('href');
+        const container = $('<div>');
+        container.append($('<label>').text(text));
+        container.append($('<div>').kangastusQr());
+        $(link).replaceWith(container);
+      });
+      
+      return $(html).html();
+    },
     
     _renderIndex: function () {
       $(document.body).kangastusDatabase('listKangastusItemsByTag', 'etusivu')
