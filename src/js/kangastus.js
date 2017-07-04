@@ -12,16 +12,17 @@
     
     _create : function() {
       StatusBar.hide();
-      $(document.body).kangastusWordpress();    
-      $(document.body).kangastusDatabase();
-      $(document.body).kangastusAnimation();
-      //$(document.body).kangastusWeather(getConfig().weather);
       
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
       $(document.body).on("touchend", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchEnd, this));
       //$(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
       
-      this.updateIndex = 0;
+      $(document.body).kangastusWordpress();    
+      $(document.body).kangastusDatabase();
+      $(document.body).kangastusAnimation();
+      $(document.body).kangastusWeather(getConfig().weather);
+      $(document.body).kangastusClock();
+
       this.targetPage = null;
       this.swiper = null;
       this._resetSwiper((swiper) => {
@@ -31,12 +32,14 @@
 
     _onIndexSlideVisible: function(swiper) {
       swiper.lockSwipes();
+      $('.footer-container').show();
       $('.swiper-pagination').hide();
       $('.swiper-button-next').hide();
       $('.swiper-button-prev').hide();
     },
     
     _onContentSlideVisible: function() {
+      $('.footer-container').hide();
       $('.swiper-pagination').show();
       $('.swiper-button-next').show();
       $('.swiper-button-prev').show();
@@ -130,9 +133,11 @@
     _update: function () {
       $(document.body).kangastusWordpress('listKangastusItems')
         .then((items) => {
-          items.forEach((item) => {
+          for (let i = 0; i < items.length; i++) {
+            let item = items[i];
+            item.order = i;
             $(document.body).kangastusDatabase("upsertKangastusItem", item.id, item);
-          });
+          }
         });
     },
 
@@ -163,9 +168,6 @@
 
     _onDatabaseInitialized: function () {
       setInterval($.proxy(this._update, this), 5000);
-      setInterval(() => {
-        this.updateIndex = (this.updateIndex + 1) % this.options.availableTags.length;
-      }, 2000);
       setInterval($.proxy(this._renderIndex, this), 5000);
     }
   });

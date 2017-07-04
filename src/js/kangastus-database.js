@@ -7,21 +7,28 @@
   $.widget("custom.kangastusDatabase", {
     
     options: {
-      drop: false
+      drop: false,
+      browser: true
     },
     
     _create : function() {
-      this.prepareDatabase()
-        .then(() => {
-          window.sqlitePlugin.openDatabase({ name: 'kangastus.db', location: 'default' }, (db) => {
-            this.db = db;
-            this.initializeDatabase();
-            $(document.body).trigger("databaseOpen");
+      if (this.options.browser) {
+        this.items = {};
+        console.log('Database running in browser mode, for debugging purposes only.')
+        $(document.body).trigger("databaseInitialized");
+      } else {
+        this.prepareDatabase()
+          .then(() => {
+            window.sqlitePlugin.openDatabase({ name: 'kangastus.db', location: 'default' }, (db) => {
+              this.db = db;
+              this.initializeDatabase();
+              $(document.body).trigger("databaseOpen");
+            });
+          })
+          .catch((err) => {
+            console.error(err);
           });
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+      }
     },
     
     prepareDatabase: function () {
@@ -68,6 +75,11 @@
     },
     
     upsertKangastusItem: function(id, data) {
+      if (this.options.browser) {
+        this.items[id] = data;
+        return;
+      }
+      
       this.findKangastusItem(id)
         .then((item) => {
           if (item) {
@@ -115,21 +127,53 @@
     
     listKangastusItemsByTag: function(tag) {
       return new Promise((resolve, reject) => {
-        this.executeTx('SELECT * from Kangastus where (tagsSearch like ?)', [`%|${tag}|%`])
-          .then((rs) => {
-            if (rs.rows) {
-              const result = [];
-      
-              for (let i = 0; i < rs.rows.length; i++) {
-                result.push(JSON.parse(rs.rows.item(i).data));
-              }
-              
-              resolve(result);
-            } else {
-              resolve(null);
+        if (this.options.browser) {
+          const kangastusIds = Object.keys(this.items);
+          const data = [];
+          for (let i = 0; i < kangastusIds.length; i++) {
+            if (this.items[kangastusIds[i]].tags.indexOf(tag) !== -1) {
+              data.push(this.items[kangastusIds[i]]);
             }
-          })
-          .catch(reject);
+          }
+          if (data.length > 0) {
+            resolve(data.sort((a, b) => {
+              console.log(a);
+              if (a.order > b.order) {
+                return 1;
+              } else if(b.order > a.order) {
+                return -1;
+              }
+              return 0;
+            })); 
+          }
+          
+          data.length > 0 ? resolve(data) : resolve(null);
+          
+        } else {
+          this.executeTx('SELECT * from Kangastus where (tagsSearch like ?)', [`%|${tag}|%`])
+            .then((rs) => {
+              if (rs.rows) {
+                const result = [];
+
+                for (let i = 0; i < rs.rows.length; i++) {
+                  result.push(JSON.parse(rs.rows.item(i).data));
+                }
+                result.sort((a, b) => {
+                  if (a.order > b.order) {
+                    return 1;
+                  } else if(b.order > a.order) {
+                    return -1;
+                  }
+
+                  return 0;
+                });
+                resolve(result);
+              } else {
+                resolve(null);
+              }
+            })
+            .catch(reject);
+        }
       });
     }
     

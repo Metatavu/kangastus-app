@@ -1,3 +1,65 @@
+@font-face {
+  font-family: 'cairo-extralight';
+  src:  url('../fonts/cairo/Cairo-ExtraLight.woff2') format('woff2'),
+        url('../fonts/cairo/Cairo-ExtraLight.woff') format('woff');
+}
+@font-face {
+  font-family: 'cairo-light';
+  src:  url('../fonts/cairo/Cairo-Light.woff2') format('woff2'),
+        url('../fonts/cairo/Cairo-Light.woff') format('woff');
+}
+@font-face {
+  font-family: 'cairo-regular';
+  src:  url('../fonts/cairo/Cairo-Regular.woff2') format('woff2'),
+        url('../fonts/cairo/Cairo-Regular.woff') format('woff');
+}
+@font-face {
+  font-family: 'cairo-semibold';
+  src:  url('../fonts/cairo/Cairo-SemiBold.woff2') format('woff2'),
+        url('../fonts/cairo/Cairo-SemiBold.woff') format('woff');
+}
+@font-face {
+  font-family: 'cairo-bold';
+  src:  url('../fonts/cairo/Cairo-Bold.woff2') format('woff2'),
+        url('../fonts/cairo/Cairo-Bold.woff') format('woff');
+}
+@font-face {
+  font-family: 'cairo-black';
+  src:  url('../fonts/cairo/Cairo-Black.woff2') format('woff2'),
+        url('../fonts/cairo/Cairo-Black.woff') format('woff');
+}
+
+@mixin font-extralight($size) {
+  font-family: 'cairo-extralight', sans-serif;
+  font-size: $size;
+  font-weight: 200;
+}
+@mixin font-light($size) {
+  font-family: 'cairo-light', sans-serif;
+  font-size: $size;
+  font-weight: 300;
+}
+@mixin font-reqular($size) {
+  font-family: 'cairo-semibold', sans-serif;
+  font-size: $size;
+  font-weight: 400;
+}
+@mixin font-semibold($size) {
+  font-family: 'cairo-semibold', sans-serif;
+  font-size: $size;
+  font-weight: 600;
+}
+@mixin font-bold($size) {
+  font-family: 'cairo-bold', sans-serif;
+  font-size: $size;
+  font-weight: 700;
+}
+@mixin font-black($size) {
+  font-family: 'cairo-black', sans-serif;
+  font-size: $size;
+  font-weight: 900;
+}
+
 html, body {
   position: relative;
   height: 100%;
@@ -9,6 +71,7 @@ body {
   color:#000;
   margin: 0;
   padding: 0;
+  @include font-reqular(30px);
 }
 
 .swiper-container {
@@ -40,12 +103,26 @@ body {
   background-color: #eef0d8;
   
   .kangastus-item {
-    padding-top: 150px;
     text-align: center;
     background-size: cover;
-    height: 33vh;
-    margin-bottom: 5px;
+    height: 567px;
     
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    
+    &:not(:last-child) {
+      margin-bottom: 10px; 
+    }
     
     h1,
     div {
@@ -97,5 +174,75 @@ body {
         color: #000205;
       }
     }
+  }
+}
+
+.footer-container {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  height: 200px;
+  width: 100%;
+  background-color: #eeecdd;
+  z-index: 1;
+  
+  .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  h5 {
+    color: #000;
+    margin-bottom: -20px;
+    @include font-reqular(40px);
+  }
+  
+  .footer-block {
+    height: 200px;
+    padding-top: 35px;
+    
+    &.side-block {
+      padding-left: 15px;
+      text-align: left;
+      
+      .text-container {
+        padding-top: 35px;
+      }
+    }
+    
+    small {
+      color: #62baea;
+      font-size: 18px;
+    }
+    
+  }
+  
+  .temp-container {
+    padding-top: 5px;
+    background-color: #62baea;
+    text-align: center;
+
+    h5 {
+      color: #fff;
+      font-size: 55px;
+      margin-top: 27px;
+    }
+  }
+  
+  .qr-code {
+    width: 100%;
+    height: auto;
+    margin-left: -25px;
+  }
+}
+
+.no-gutters {
+  margin-right: 0;
+  margin-left: 0;
+
+  > .col,
+  > [class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
   }
 }

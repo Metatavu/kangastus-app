@@ -1,9 +1,10 @@
 .swiper-slide.index
   each item, index in items 
     .kangastus-item(data-tag="item-" + index, style="background-image: url(" + item['better_featured_image']['source_url'] + ")")
-      h1.index-title
-        =item.title.rendered
-      .index-content
-        !=item.content.rendered
-      h1.index-icon
-        i.fa.fa-arrow-circle-right
+      .kangastus-item-content-container
+        h1.index-title
+          =item.title.rendered
+        .index-content
+          !=item.content.rendered
+        h1.index-icon
+          i.fa.fa-arrow-circle-right
