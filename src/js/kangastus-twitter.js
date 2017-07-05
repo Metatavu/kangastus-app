@@ -16,6 +16,7 @@
     _create : function() { 
       this._viewing = true;
       this._codebird = new Codebird();
+      this._codebird.setUseProxy(false);
       this._codebird.setConsumerKey(getConfig().twitter.apiKey, getConfig().twitter.apiSecret);
       this._codebird.setToken(getConfig().twitter.token, getConfig().twitter.tokenSecret);
       
@@ -40,7 +41,6 @@
             
             $(document.body).kangastusDatabase('upsertTweet', id, created, status)
               .then((tweet) => {
-                
               })
               .catch((err) => {
                 console.log(" upsertTweet error:" + err);
@@ -57,12 +57,10 @@
         return;
       }
       
-      console.log("SHOW TWEET");
-      
       $(document.body).kangastusDatabase('findOldestTweet')
         .then((tweet) => {
           if (tweet) {
-            $('#tweet').hide().html(pugTweet(Object.assign(JSON.parse(tweet), {
+            $('#tweet').hide().html(pugTweet(Object.assign(tweet, {
               userImage: tweet.user.profile_image_url_https.replace(/_normal/g,''),
               hashTags: _.map(tweet.entities.hashtags, (hashTag) => {
                 return '#' + hashTag.text;

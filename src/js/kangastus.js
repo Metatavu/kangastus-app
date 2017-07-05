@@ -86,10 +86,10 @@
       this.swiper.slideTo(1, 400, true);
     },
 
-    _renderSlidesByParent: function(parent) {      
-      $(document.body).kangastusDatabase('listKangastusItemsByParent', parent)
+    _renderSlidesByParent: function(parent) {
+      $(document.body).kangastusDatabase('listKangastusItemsByParent', parseInt(parent))
         .then((items) => {
-
+          console.log(items);
           const slides = [];
           items.forEach((item) => {
             slides.push(this._preProcessPage(pugKangastusPage({

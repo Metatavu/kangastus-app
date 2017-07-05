@@ -8,7 +8,7 @@
     
     options: {
       drop: false,
-      browser: true
+      browser: false
     },
     
     _create : function() {
@@ -48,12 +48,15 @@
     },
     
     initializeDatabase: function() {
-      this.executeTx('CREATE TABLE IF NOT EXISTS Kangastus (id, data, parent)')
-        .then(() => {
-          console.log("db Initialized");
-          $(document.body).trigger("databaseInitialized");
-        })
-        .catch(this.handleError);
+      Promise.all([
+         this.executeTx('CREATE TABLE IF NOT EXISTS Kangastus (id, data, parent)'),
+         this.executeTx('CREATE TABLE IF NOT EXISTS Tweet (id, created, data)')
+      ])
+      .then(() => {
+        console.log("db Initialized");
+        $(document.body).trigger("databaseInitialized");
+      })
+      .catch(this.handleError);
     },
     
     handleError: function(error) {
@@ -80,7 +83,6 @@
         this.items[id] = data;
         return;
       }
-      
       this.findKangastusItem(id)
         .then((item) => {
           if (item) {
@@ -151,11 +153,10 @@
           data.length > 0 ? resolve(data) : resolve(null);
           
         } else {
-          this.executeTx('SELECT * from Kangastus where parent = ?', parent)
+          this.executeTx('SELECT * from Kangastus where parent = ?', [parent])
             .then((rs) => {
               if (rs.rows) {
                 const result = [];
-
                 for (let i = 0; i < rs.rows.length; i++) {
                   result.push(JSON.parse(rs.rows.item(i).data));
                 }
@@ -165,7 +166,6 @@
                   } else if(b.order > a.order) {
                     return -1;
                   }
-
                   return 0;
                 });
                 resolve(result);
@@ -187,7 +187,7 @@
         });
       }
       
-      this.findTweet(id)
+      return this.findTweet(id)
         .then((tweet) => {
           if (tweet) {
             return this.updateTweet(id, created, JSON.stringify(data));
@@ -216,7 +216,7 @@
                 
                 this.executeTx('DELETE FROM Tweet where id = ?', [row.id])
                   .then(() => {
-                    resolve(data);
+                    resolve(JSON.parse(data));
                   })
                   .catch(reject);
               } else {

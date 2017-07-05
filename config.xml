@@ -12,6 +12,8 @@
     <access origin="http://10.0.2.2:1234" />
     <access origin="http://info-local.metatavu.io:1234" />
     <access origin="http://api.openweathermap.org" />
+    <access origin="https://api.twitter.com" />
+    <access origin="https://pbs.twimg.com" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <allow-intent href="ws://*/*" />
