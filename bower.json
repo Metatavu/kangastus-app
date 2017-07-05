@@ -28,6 +28,7 @@
     "components-font-awesome": "^4.7.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "qrcode.js": "davidshimjs/qrcodejs"
+    "qrcode.js": "davidshimjs/qrcodejs",
+    "codebird-js": "jublonet/codebird-js#^2.6.0"
   }
 }

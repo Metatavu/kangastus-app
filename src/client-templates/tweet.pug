@@ -1,0 +1,11 @@
+.row
+  .col-2
+    .image(style="background-image:url(" + userImage + ')')
+  .col-10
+    .screenName
+      |@
+      =user.screen_name
+    .text
+      =text
+      .hashtags
+        =hashTags

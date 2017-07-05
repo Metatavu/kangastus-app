@@ -22,6 +22,7 @@
       $(document.body).kangastusAnimation();
       $(document.body).kangastusWeather(getConfig().weather);
       $(document.body).kangastusClock();
+      $(document.body).kangastusTwitter();
 
       this.targetPage = null;
       this.swiper = null;
@@ -37,6 +38,7 @@
       $('.swiper-button-next').hide();
       $('.swiper-button-prev').hide();
       $('.header-container').hide();
+      $(document.body).kangastusTwitter('startViewing');
     },
     
     _onContentSlideVisible: function() {
@@ -45,6 +47,7 @@
       $('.swiper-pagination').show();
       $('.swiper-button-next').show();
       $('.swiper-button-prev').show();
+      $(document.body).kangastusTwitter('stopViewing');
     },
 
     _resetSwiper: function(callback) {

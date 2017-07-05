@@ -7,6 +7,7 @@ npm-debug.log
 .project
 .settings
 /nbproject
+config.json
 .sass-cache
 /www/css/*.min.css
 /www/css/*.min.css.*
