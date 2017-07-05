@@ -260,3 +260,29 @@ body {
     display: block;
   }
 }
+
+#tweet {
+  background: #fff;
+  
+  .image {
+    height: 200px;
+    width: 200px;
+    background-size:cover;
+  }
+  
+  .screenName {
+    margin-top: 20px;
+    margin-left: 40px;
+    color: #63b8f1;
+  }
+  
+  .text {
+    margin-top: 10px;
+    margin-left: 40px;
+    font-size: 22px;
+  }
+  
+  .hashtags {
+    color: #63b8f1;
+  }
+}

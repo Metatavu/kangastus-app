@@ -28,7 +28,8 @@ module.exports = function(grunt) {
     
     const values = {
       wordpress: config.wordpress,
-      weather: config.weather
+      weather: config.weather,
+      twitter: config.twitter
     };
     
     fs.writeFileSync(this.data.options.output, util.format('function getConfig() { return %s; };', JSON.stringify(values)));

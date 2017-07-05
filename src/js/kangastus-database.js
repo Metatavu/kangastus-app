@@ -14,6 +14,7 @@
     _create : function() {
       if (this.options.browser) {
         this.items = {};
+        this.tweets = {};
         console.log('Database running in browser mode, for debugging purposes only.')
         $(document.body).trigger("databaseInitialized");
       } else {
@@ -174,6 +175,91 @@
             })
             .catch(reject);
         }
+      });
+    },
+    
+    upsertTweet: function(id, created, data) {
+      if (this.options.browser) {
+        this.tweets[id] = JSON.stringify(data);
+        
+        return new Promise((resolve) => {
+          resolve();
+        });
+      }
+      
+      this.findTweet(id)
+        .then((tweet) => {
+          if (tweet) {
+            return this.updateTweet(id, created, JSON.stringify(data));
+          } else {
+            return this.insertTweet(id, created, JSON.stringify(data));
+          }
+        });
+    },
+    
+    findOldestTweet: function () {
+      if (this.options.browser) {
+        return new Promise((resolve) => {
+          const ids = Object.keys(this.tweets);
+          const id = ids && ids.length ? ids[0] : null;
+          const tweet = this.tweets[id];
+          delete this.tweets[id];
+          resolve(tweet);
+        });
+      } else {
+        return new Promise((resolve, reject) => {
+          this.executeTx('SELECT * from Tweet order by created desc limit 1')
+            .then((rs) => {
+              if (rs.rows && rs.rows.length) {
+                const row = rs.rows.item(0);
+                const data = row.data;
+                
+                this.executeTx('DELETE FROM Tweet where id = ?', [row.id])
+                  .then(() => {
+                    resolve(data);
+                  })
+                  .catch(reject);
+              } else {
+                resolve(null);
+              }
+            })
+            .catch(reject);
+        });
+      }
+    },
+    
+    insertTweet: function(id, created, data) {
+      return new Promise((resolve, reject) => {
+        this.executeTx('INSERT INTO Tweet (id, created, data) values (?, ?, ?)', [id, created, data])
+          .then((rs) => {
+            resolve(null);
+          })
+          .catch(reject);
+      });
+    },
+    
+    updateTweet: function(id, created, data) {
+      return new Promise((resolve, reject) => {
+        this.executeTx('UPDATE Tweet set data = ?, created = ? where id = ?', [data, created, id])
+          .then((rs) => {
+            resolve(null);
+          })
+          .catch(reject);
+      });
+    },
+    
+    findTweet: function(id) {
+      return new Promise((resolve, reject) => {
+        this.executeTx('SELECT * from Tweet where id = ?', [id])
+          .then((rs) => {
+            if (rs.rows && rs.rows.length) {
+              const row = rs.rows.item(0);
+              resolve(row.data);
+            } else {
+              resolve(null);
+            }
+          })
+          .catch(reject);
       });
     }
     
