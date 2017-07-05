@@ -137,7 +137,6 @@
           }
           if (data.length > 0) {
             resolve(data.sort((a, b) => {
-              console.log(a);
               if (a.order > b.order) {
                 return 1;
               } else if(b.order > a.order) {
