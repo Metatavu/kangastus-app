@@ -47,7 +47,7 @@
     },
     
     initializeDatabase: function() {
-      this.executeTx('CREATE TABLE IF NOT EXISTS Kangastus (id, data, tagsSearch)')
+      this.executeTx('CREATE TABLE IF NOT EXISTS Kangastus (id, data, parent)')
         .then(() => {
           console.log("db Initialized");
           $(document.body).trigger("databaseInitialized");
@@ -83,16 +83,16 @@
       this.findKangastusItem(id)
         .then((item) => {
           if (item) {
-            return this.updateKangastusItem(id, JSON.stringify(data), data.tagsSearch);
+            return this.updateKangastusItem(id, JSON.stringify(data), data.parent);
           } else {
-            return this.insertKangastusItem(id, JSON.stringify(data), data.tagsSearch);
+            return this.insertKangastusItem(id, JSON.stringify(data), data.parent);
           }
         });
     },
     
-    insertKangastusItem: function(id, data, tagsSearch) {
+    insertKangastusItem: function(id, data, parent) {
       return new Promise((resolve, reject) => {
-        this.executeTx('INSERT INTO Kangastus (id, data, tagsSearch) values (?, ?, ?)', [id, data, tagsSearch])
+        this.executeTx('INSERT INTO Kangastus (id, data, parent) values (?, ?, ?)', [id, data, parent])
           .then((rs) => {
             resolve(null);
           })
@@ -100,9 +100,9 @@
       });
     },
     
-    updateKangastusItem: function(id, data, tagsSearch) {
+    updateKangastusItem: function(id, data, parent) {
       return new Promise((resolve, reject) => {
-        this.executeTx('UPDATE Kangastus set data = ?, tagsSearch = ? where id = ?', [data, tagsSearch, id])
+        this.executeTx('UPDATE Kangastus set data = ?, parent = ? where id = ?', [data, parent, id])
           .then((rs) => {
             resolve(null);
           })
@@ -125,16 +125,17 @@
       });
     },
     
-    listKangastusItemsByTag: function(tag) {
+    listKangastusItemsByParent: function(parent) {
       return new Promise((resolve, reject) => {
         if (this.options.browser) {
           const kangastusIds = Object.keys(this.items);
           const data = [];
           for (let i = 0; i < kangastusIds.length; i++) {
-            if (this.items[kangastusIds[i]].tags.indexOf(tag) !== -1) {
+            if (parent == this.items[kangastusIds[i]].parent) {
               data.push(this.items[kangastusIds[i]]);
             }
           }
+          
           if (data.length > 0) {
             resolve(data.sort((a, b) => {
               if (a.order > b.order) {
@@ -149,7 +150,7 @@
           data.length > 0 ? resolve(data) : resolve(null);
           
         } else {
-          this.executeTx('SELECT * from Kangastus where (tagsSearch like ?)', [`%|${tag}|%`])
+          this.executeTx('SELECT * from Kangastus where parent = ?', parent)
             .then((rs) => {
               if (rs.rows) {
                 const result = [];
