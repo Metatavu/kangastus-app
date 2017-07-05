@@ -7,18 +7,25 @@
   $.widget("custom.kangastusQr", { 
     options: {
       size: 200,
-      text: ''
+      text: '',
+      link: ''
     },
     
     _create : function() {
-      this.qrcode = new QRCode(this.element[0], {
-        text: this.text,
+      const label = $('<label>')
+        .text(this.options.text)
+        .appendTo(this.element);
+
+      const imageContainer =  $('<div>')
+        .addClass('qrlink-image-container')
+        .appendTo(this.element);
+      
+      this.qrcode = new QRCode(imageContainer[0], {
         width: this.options.size,
-        height: this.options.size,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.H
+        height: this.options.size
       });
+      
+      this.qrcode.makeCode(this.options.link);
     }
   });
 

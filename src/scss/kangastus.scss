@@ -282,3 +282,17 @@ body {
     padding-left: 0;
   }
 }
+
+.qrcode-link {
+  text-align: center;
+  
+  .qrlink-image-container {
+    display: inline-block;
+  }
+  
+  label {
+    color: #63b8f1;
+    margin-bottom: 20px;
+    display: block;
+  }
+}

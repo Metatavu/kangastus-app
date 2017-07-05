@@ -7,7 +7,6 @@
   $.widget("custom.kangastus", {
     
     options: {
-      availableTags: ['eroa-kiireesta', 'matkalla-mikkelissa', 'miksei-mikkeli']
     },
     
     _create : function() {
@@ -63,7 +62,7 @@
         centeredSlides: true,
         spaceBetween: 30,
         onSlideChangeEnd: (swiper) => {
-          const slideIndex = $('.swiper-slide-active').data("swiper-slide-index");
+          const slideIndex = $('.swiper-slide-active').attr("data-swiper-slide-index");
           if (!slideIndex || slideIndex == 0) {
             this._onIndexSlideVisible(swiper);
           }
@@ -77,8 +76,8 @@
       }
     },
 
-    _renderSlidesByTag: function(tag) {      
-      $(document.body).kangastusDatabase('listKangastusItemsByTag', tag)
+    _renderSlidesByParent: function(parent) {      
+      $(document.body).kangastusDatabase('listKangastusItemsByParent', parent)
         .then((items) => {
 
           const slides = [];
@@ -102,6 +101,7 @@
             this.swiper.unlockSwipes();
             this.swiper.slideNext();
             this._onContentSlideVisible();
+            this._postProcessContents();
           });
 
         })
@@ -110,14 +110,32 @@
         });
     }, 
     
+    _postProcessContents: function () {
+      $('.qrcode-link-unprocessed').each((index, qrLink) => {
+        $(qrLink).removeClass('qrcode-link-unprocessed').addClass('qrcode-link');
+        
+        const text = $(qrLink).attr('data-text');
+        const link = $(qrLink).attr('data-link');
+        
+        $(qrLink).kangastusQr({
+          text: text,
+          link: link
+        });
+      });
+    },
+    
     _preProcessPage: function (html) {
       const pageContents = $(html);
       $.each(pageContents.find('a'), function(index, element) {
         const text = $(element).text();
         const link = $(element).attr('href');
-        const container = $('<div>');
-        container.append($('<label>').text(text));
-        container.append($('<div>').kangastusQr({text: link}));
+        
+        const container = $('<div>').addClass('qrcode-link-unprocessed')
+          .attr({
+            'data-text': text,
+            'data-link': link
+          });
+          
         $(element).replaceWith(container);
       });
 
@@ -125,7 +143,7 @@
     },
     
     _renderIndex: function () {
-      $(document.body).kangastusDatabase('listKangastusItemsByTag', 'etusivu')
+      $(document.body).kangastusDatabase('listKangastusItemsByParent', 0)
         .then((items) => {
           const indexHtml = pugKangastusIndex({
             items: items
@@ -179,23 +197,8 @@
     
     _onIndexKangastusItemTouchEnd: function (e) {
       let targetPage = '';
-      const tag = $(e.target).closest('.kangastus-item').attr('data-tag');
-      switch (tag) {
-        case 'item-0':
-          targetPage = 'matkalla-mikkelissa';
-        break;
-        case 'item-1':
-          targetPage = 'eroa-kiireesta';
-        break;
-        case 'item-2':
-          targetPage = 'miksei-mikkeli';
-        break;
-        default:
-          console.log('target page not found');
-        return;
-      }
-      
-      this._renderSlidesByTag(targetPage);
+      const parent = $(e.target).closest('.kangastus-item').attr('data-id');
+      this._renderSlidesByParent(parent);
     },
 
     _onDatabaseInitialized: function () {
