@@ -1,5 +1,5 @@
 /* jshint esversion: 6 */
-/* global getConfig, StatusBar, WPAPI */
+/* global getConfig, StatusBar, WPAPI, AndroidFullScreen */
 
 (function(){
   'use strict';
@@ -11,12 +11,13 @@
     
     _create : function() {
       StatusBar.hide();
-      
+      AndroidFullScreen.immersiveMode(() => {}, () => {});
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
       $(document.body).on("touchend", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchEnd, this));
       $(document.body).on("touchend", '.home-btn-container', $.proxy(this._onHomeBtnTouchEnd, this));
       //$(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
       
+      $(document.body).kangastusImage();
       $(document.body).kangastusWordpress();    
       $(document.body).kangastusDatabase();
       $(document.body).kangastusAnimation();
@@ -89,7 +90,6 @@
     _renderSlidesByParent: function(parent) {
       $(document.body).kangastusDatabase('listKangastusItemsByParent', parseInt(parent))
         .then((items) => {
-          console.log(items);
           const slides = [];
           items.forEach((item) => {
             slides.push(this._preProcessPage(pugKangastusPage({
@@ -173,10 +173,9 @@
     },
     
     _update: function () {
-      $(document.body).kangastusWordpress('listKangastusItems')
-        .then((items) => {
-          for (let i = 0; i < items.length; i++) {
-            let item = items[i];
+      $(document.body).kangastusWordpress('updateNext')
+        .then((item) => {
+          if (item) {
             let background = '';
             item.background = null;
 
@@ -184,21 +183,23 @@
               background += `linear-gradient(${item.colorMask}, ${item.colorMask})`
             }
 
-            if (item['better_featured_image']) {
+            if (item.localImageUrl) {
               if (item.colorMask) {
                 background += ',';
               }
-              background += `url(${item['better_featured_image']['source_url']})`;
+              background += `url(${item.localImageUrl})`;
             }
 
             if (background && background.length > 0) {
               item.background = `background: ${background};`;  
             }
 
-            item.order = i;
+            item.order = item['menu_order'];
             $(document.body).kangastusDatabase("upsertKangastusItem", item.id, item);
           }
-        });
+        })
+        .catch((updateErr) => { console.log('Error updating item', updateErr); })
+        .then(() => { setTimeout(() => { this._update() }, 1000 ); });
     },
 
     _onIndexKangastusItemTouchStart: function (e) {
@@ -217,7 +218,7 @@
     },
 
     _onDatabaseInitialized: function () {
-      setInterval($.proxy(this._update, this), 5000);
+      this._update();
       setInterval($.proxy(this._renderIndex, this), 5000);
     }
   });

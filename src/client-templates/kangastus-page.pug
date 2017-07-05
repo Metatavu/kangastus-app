@@ -1,6 +1,6 @@
 .swiper-slide.page-container
   .page
-    .page-featured-image(style="background-image: url(" + item['better_featured_image']['source_url'] + ")")
+    .page-featured-image(style="background-image: url(" + item.localImageUrl + ")")
     .page-content-container
       h1.page-title
         =item.title.rendered

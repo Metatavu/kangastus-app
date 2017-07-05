@@ -10,7 +10,7 @@
     <access origin="https://pakkasmarja-berries.metatavu.io" />
     <access origin="https://staging-hallinta-pakkasmarja.metatavu.io" />
     <access origin="http://10.0.2.2:1234" />
-    <access origin="http://info-local.metatavu.io:1234" />
+    <access origin="https://hallinta-mikkeli.kunta-api.fi" />
     <access origin="http://api.openweathermap.org" />
     <access origin="https://api.twitter.com" />
     <access origin="https://pbs.twimg.com" />
@@ -24,4 +24,7 @@
     <plugin name="cordova-plugin-whitelist" spec="~1.3.2" />
     <plugin name="cordova-sqlite-storage" spec="~2.0.4" />
     <plugin name="cordova-plugin-statusbar" spec="~2.2.3" />
+    <plugin name="cordova-plugin-fullscreen" spec="~1.1.0" />
+    <plugin name="cordova-plugin-file-transfer" spec="~1.6.3" />
+    <plugin name="cordova-plugin-file" spec="~4.3.3" />
 </widget>
