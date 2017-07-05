@@ -27,7 +27,7 @@
     "swiper": "^3.4.2",
     "components-font-awesome": "^4.7.0",
     "lodash": "^4.17.4",
-    "moment": "^2.18.1"
+    "moment": "^2.18.1",
     "qrcode.js": "davidshimjs/qrcodejs"
   }
 }

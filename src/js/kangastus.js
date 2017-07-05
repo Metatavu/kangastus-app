@@ -111,16 +111,17 @@
     }, 
     
     _preProcessPage: function (html) {
-      $(html).find('a').each((index, link) => {
-        const text = $(link).text();
-        const link = $(link).attr('href');
+      const pageContents = $(html);
+      $.each(pageContents.find('a'), function(index, element) {
+        const text = $(element).text();
+        const link = $(element).attr('href');
         const container = $('<div>');
         container.append($('<label>').text(text));
-        container.append($('<div>').kangastusQr());
-        $(link).replaceWith(container);
+        container.append($('<div>').kangastusQr({text: link}));
+        $(element).replaceWith(container);
       });
-      
-      return $(html).html();
+
+      return pageContents[0].outerHTML;
     },
     
     _renderIndex: function () {
