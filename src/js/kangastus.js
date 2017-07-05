@@ -14,6 +14,7 @@
       
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
       $(document.body).on("touchend", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchEnd, this));
+      $(document.body).on("touchend", '.home-btn-container', $.proxy(this._onHomeBtnTouchEnd, this));
       //$(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
       
       $(document.body).kangastusWordpress();    
@@ -35,10 +36,12 @@
       $('.swiper-pagination').hide();
       $('.swiper-button-next').hide();
       $('.swiper-button-prev').hide();
+      $('.header-container').hide();
     },
     
     _onContentSlideVisible: function() {
       $('.footer-container').hide();
+      $('.header-container').show();
       $('.swiper-pagination').show();
       $('.swiper-button-next').show();
       $('.swiper-button-prev').show();
@@ -74,6 +77,10 @@
       if (typeof callback === 'function') {
         callback(this.swiper);
       }
+    },
+
+    _onHomeBtnTouchEnd: function() {
+      this.swiper.slideTo(1, 400, true);
     },
 
     _renderSlidesByParent: function(parent) {      
@@ -197,8 +204,13 @@
     
     _onIndexKangastusItemTouchEnd: function (e) {
       let targetPage = '';
-      const parent = $(e.target).closest('.kangastus-item').attr('data-id');
-      this._renderSlidesByParent(parent);
+      const parent = $(e.target).closest('.kangastus-item');
+      const parentId = $(parent).attr('data-id');
+      const parentTitle = $(parent).find('.index-title').text();
+      const parentBg = $(parent).attr('style');
+      $('.header-container').attr('style', parentBg);
+      $('.header-title').text(parentTitle);
+      this._renderSlidesByParent(parentId);
     },
 
     _onDatabaseInitialized: function () {
