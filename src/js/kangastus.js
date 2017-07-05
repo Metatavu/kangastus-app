@@ -63,7 +63,7 @@
         centeredSlides: true,
         spaceBetween: 30,
         onSlideChangeEnd: (swiper) => {
-          const slideIndex = $('.swiper-slide-active').data("swiper-slide-index");
+          const slideIndex = $('.swiper-slide-active').attr("data-swiper-slide-index");
           if (!slideIndex || slideIndex == 0) {
             this._onIndexSlideVisible(swiper);
           }
@@ -102,6 +102,7 @@
             this.swiper.unlockSwipes();
             this.swiper.slideNext();
             this._onContentSlideVisible();
+            this._postProcessContents();
           });
 
         })
@@ -110,14 +111,32 @@
         });
     }, 
     
+    _postProcessContents: function () {
+      $('.qrcode-link-unprocessed').each((index, qrLink) => {
+        $(qrLink).removeClass('qrcode-link-unprocessed').addClass('qrcode-link');
+        
+        const text = $(qrLink).attr('data-text');
+        const link = $(qrLink).attr('data-link');
+        
+        $(qrLink).kangastusQr({
+          text: text,
+          link: link
+        });
+      });
+    },
+    
     _preProcessPage: function (html) {
       const pageContents = $(html);
       $.each(pageContents.find('a'), function(index, element) {
         const text = $(element).text();
         const link = $(element).attr('href');
-        const container = $('<div>');
-        container.append($('<label>').text(text));
-        container.append($('<div>').kangastusQr({text: link}));
+        
+        const container = $('<div>').addClass('qrcode-link-unprocessed')
+          .attr({
+            'data-text': text,
+            'data-link': link
+          });
+          
         $(element).replaceWith(container);
       });
 
