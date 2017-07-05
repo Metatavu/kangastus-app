@@ -1,6 +1,6 @@
 .swiper-slide.index
   each item, index in items 
-    .kangastus-item(data-tag="item-" + index, style=item.background)
+    .kangastus-item(data-id=item.id, style=item.background)
       .kangastus-item-content-container
         h1.index-title
           =item.title.rendered
