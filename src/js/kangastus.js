@@ -130,7 +130,7 @@
           const indexHtml = pugKangastusIndex({
             items: items
           });
-          
+
           if ($('.index').length > 0) {
             $('.index').replaceWith($(indexHtml));
           } else {
@@ -149,6 +149,24 @@
         .then((items) => {
           for (let i = 0; i < items.length; i++) {
             let item = items[i];
+            let background = '';
+            item.background = null;
+
+            if (item.colorMask) {
+              background += `linear-gradient(${item.colorMask}, ${item.colorMask})`
+            }
+
+            if (item['better_featured_image']) {
+              if (item.colorMask) {
+                background += ',';
+              }
+              background += `url(${item['better_featured_image']['source_url']})`;
+            }
+
+            if (background && background.length > 0) {
+              item.background = `background: ${background};`;  
+            }
+
             item.order = i;
             $(document.body).kangastusDatabase("upsertKangastusItem", item.id, item);
           }
