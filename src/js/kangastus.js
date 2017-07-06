@@ -13,7 +13,6 @@
     
     _create : function() {
       this._peekTimer = null;
-      
       StatusBar.hide();
       AndroidFullScreen.immersiveMode(() => {}, () => {});
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
@@ -46,7 +45,6 @@
       $('.swiper-button-prev').hide();
       $('.header-container').hide();
       $(document.body).kangastusTwitter('startViewing');
-      $('.peek').hide();
     },
     
     _onContentSlideVisible: function() {
@@ -194,6 +192,7 @@
               if (item.colorMask) {
                 background += ',';
               }
+              
               background += `url(${item.localImageUrl})`;
             }
 
@@ -209,18 +208,52 @@
         .then(() => { setTimeout(() => { this._update() }, 1000 ); });
     },
     
+    _createColormakedBackground(localImageUrl, colorMask) {
+      let background = '';
+      
+      if (colorMask) {
+        background += `linear-gradient(${colorMask}, ${colorMask})`
+      }
+
+      if (localImageUrl) {
+        if (colorMask) {
+          background += ',';
+        }
+              
+        background += `url(${localImageUrl})`;
+      }
+      
+      return background;
+    },
+    
     _onPeekTimeout: function () {
       $(document.body).kangastusDatabase('listKangastusItemsByParent', 0)
         .then((rootItems) => {
-          const rootIndex = Math.round(Math.random() * rootItems.length);
+          const rootIndex = Math.round(Math.random() * (rootItems.length - 1));
           const rootItem = rootItems[rootIndex]; 
-          $(document.body).kangastusDatabase('listKangastusItemsByParent', rootItem.parent)
+          
+          $(document.body).kangastusDatabase('listKangastusItemsByParent', rootItem.id)
            .then((childItems) => {
-             const childIndex = Math.round(Math.random() * childItems.length);
+             const childIndex = Math.round(Math.random() * (childItems.length - 1));
              const childItem = childItems[childIndex];
-             $(`#peek-${rootIndex}`).show("slide", { direction: "left" }, 300);
+             
+             const peekHtml = pugPeek({
+               item: childItem,
+               background: this._createColormakedBackground(rootItem.localImageUrl, rootItem.colorMask)
+             });
+             
+             $('<div>')
+               .css('margin-top', ((rootIndex * 567) + (rootIndex * 10)) + 'px')
+               .addClass('peek')
+               .html(peekHtml)
+               .appendTo(document.body)
+               .hide()
+               .show("slide", { direction: "right" }, 300);
+             
              setTimeout(() => {
-               $(`#peek-${rootIndex}`).hide("slide", { direction: "left" }, 300);
+               $(`.peek`).hide("slide", { direction: "left" }, 300, () => {
+                 $('.peek').remove();
+               });
              }, this.options.peekTime);
            });
         });
