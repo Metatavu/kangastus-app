@@ -7,7 +7,7 @@
   $.widget("custom.kangastus", {
     
     options: {
-      peekTimeout: 10000,
+      peekTimeout: 60000 * 3,
       peekTime: 3000
     },
     
@@ -51,6 +51,7 @@
       this.contentVisible = false;
       this._unsetReturnToHomeScreenTimer();
       $(document.body).kangastusTwitter('startViewing');
+      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
     },
     
     _onContentSlideVisible: function() {
@@ -62,11 +63,19 @@
       this.contentVisible = true;
       this._setReturnToHomeScreenTimer();
       $(document.body).kangastusTwitter('stopViewing');
+      
+      if (this._peekTimer) {
+        clearTimeout(this._peekTimer);
+      }
     },
 
     _onUserInteraction: function() {
       if (this.contentVisible) {
         this._setReturnToHomeScreenTimer();
+      }
+      
+      if (this._peekTimer) {
+        clearTimeout(this._peekTimer);
       }
     },
 
@@ -121,13 +130,8 @@
       this.swiper.slideTo(1, 400, true);
     },
     
-    _openSlidesByParent: function (parentId) {
+    _openSlidesByParent: function (parentId, parentBg, parentTitle) {
       $('.peek').remove();
-      let targetPage = '';
-      const parent = $(e.target).closest('.kangastus-item');
-      const parentId = $(parent).attr('data-id');
-      const parentTitle = $(parent).find('.index-title').text();
-      const parentBg = $(parent).attr('style');
       $('.header-container').attr('style', parentBg);
       $('.header-title').text(parentTitle);
       this._renderSlidesByParent(parentId);
@@ -297,7 +301,12 @@
                .hide()
                .show("slide", { direction: "right" }, 300)
                .on("touchend", () => {
-                 this._openSlidesByParent(rootItem.parent);
+                 const parentTitle = rootItem.title.rendered;
+                 const parentBg = this._createColormakedBackground(rootItem.localImageUrl, rootItem.colorMask);
+                 
+                 console.log(parentTitle, parentBg);
+                 
+                 this._openSlidesByParent(rootItem.id, 'background: ' + parentBg, parentTitle);
                });
              
              setTimeout(() => {
@@ -316,7 +325,12 @@
     },
     
     _onIndexKangastusItemTouchEnd: function (e) {
-      this._openSlidesByParent(parentId);
+      const parent = $(e.target).closest('.kangastus-item');
+      const parentId = $(parent).attr('data-id');
+      const parentTitle = $(parent).find('.index-title').text();
+      const parentBg = $(parent).attr('style');
+      
+      this._openSlidesByParent(parentId, parentBg, parentTitle);
     },
 
     _onDatabaseInitialized: function () {
