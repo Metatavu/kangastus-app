@@ -91,6 +91,18 @@
     _onHomeBtnTouchEnd: function() {
       this.swiper.slideTo(1, 400, true);
     },
+    
+    _openSlidesByParent: function (parentId) {
+      $('.peek').remove();
+      let targetPage = '';
+      const parent = $(e.target).closest('.kangastus-item');
+      const parentId = $(parent).attr('data-id');
+      const parentTitle = $(parent).find('.index-title').text();
+      const parentBg = $(parent).attr('style');
+      $('.header-container').attr('style', parentBg);
+      $('.header-title').text(parentTitle);
+      this._renderSlidesByParent(parentId);
+    },
 
     _renderSlidesByParent: function(parent) {
       $(document.body).kangastusDatabase('listKangastusItemsByParent', parseInt(parent))
@@ -248,7 +260,10 @@
                .html(peekHtml)
                .appendTo(document.body)
                .hide()
-               .show("slide", { direction: "right" }, 300);
+               .show("slide", { direction: "right" }, 300)
+               .on("touchend", () => {
+                 this._openSlidesByParent(rootItem.parent);
+               });
              
              setTimeout(() => {
                $(`.peek`).hide("slide", { direction: "left" }, 300, () => {
@@ -266,14 +281,7 @@
     },
     
     _onIndexKangastusItemTouchEnd: function (e) {
-      let targetPage = '';
-      const parent = $(e.target).closest('.kangastus-item');
-      const parentId = $(parent).attr('data-id');
-      const parentTitle = $(parent).find('.index-title').text();
-      const parentBg = $(parent).attr('style');
-      $('.header-container').attr('style', parentBg);
-      $('.header-title').text(parentTitle);
-      this._renderSlidesByParent(parentId);
+      this._openSlidesByParent(parentId);
     },
 
     _onDatabaseInitialized: function () {
