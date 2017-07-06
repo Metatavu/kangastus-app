@@ -15,6 +15,7 @@
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
       $(document.body).on("touchend", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchEnd, this));
       $(document.body).on("touchend", '.home-btn-container', $.proxy(this._onHomeBtnTouchEnd, this));
+      $(document.body).on("touchstart", $.proxy(this._onUserInteraction, this));
       //$(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
       
       $(document.body).kangastusImage();
@@ -26,7 +27,10 @@
       $(document.body).kangastusTwitter();
 
       this.targetPage = null;
+      this.contentVisible = false;
+      this.rendering = false;
       this.swiper = null;
+      this.returnToHomeScreenTimer = null;
       this._resetSwiper((swiper) => {
         this._onIndexSlideVisible(swiper);
       });
@@ -39,6 +43,8 @@
       $('.swiper-button-next').hide();
       $('.swiper-button-prev').hide();
       $('.header-container').hide();
+      this.contentVisible = false;
+      this._unsetReturnToHomeScreenTimer();
       $(document.body).kangastusTwitter('startViewing');
     },
     
@@ -48,7 +54,29 @@
       $('.swiper-pagination').show();
       $('.swiper-button-next').show();
       $('.swiper-button-prev').show();
+      this.contentVisible = true;
+      this._setReturnToHomeScreenTimer();
       $(document.body).kangastusTwitter('stopViewing');
+    },
+
+    _onUserInteraction: function() {
+      if (this.contentVisible) {
+        this._setReturnToHomeScreenTimer();
+      }
+    },
+
+    _unsetReturnToHomeScreenTimer: function() {
+      if (this.returnToHomeScreenTimer) {
+        clearTimeout(this.returnToHomeScreenTimer);
+        this.returnToHomeScreenTimer = null;
+      }
+    },
+
+    _setReturnToHomeScreenTimer: function() {
+      this._unsetReturnToHomeScreenTimer();
+      this.returnToHomeScreenTimer = setTimeout(() => {
+        this.swiper.slideTo(1, 400, true);
+      }, 1000 * 60 * 5);
     },
 
     _resetSwiper: function(callback) {
@@ -60,6 +88,7 @@
         pagination: '.swiper-pagination',
         paginationType: 'custom',
         paginationClickable: false,
+        longSwipesMs: 900,
         paginationCustomRender: function (swiper, current, total) {
           return `${current - 1} / ${total - 1}`;
         },
@@ -88,6 +117,11 @@
     },
 
     _renderSlidesByParent: function(parent) {
+      if (this.rendering) {
+        return;
+      } 
+      
+      this.rendering = true;
       $(document.body).kangastusDatabase('listKangastusItemsByParent', parseInt(parent))
         .then((items) => {
           const slides = [];
@@ -117,7 +151,8 @@
         })
         .catch((err) => {
           console.log('ERROR:' + err);
-        });
+        })
+        .then(() => { this.rendering = false; });
     }, 
     
     _postProcessContents: function () {
@@ -198,7 +233,7 @@
             $(document.body).kangastusDatabase("upsertKangastusItem", item.id, item);
           }
         })
-        .catch((updateErr) => { console.log('Error updating item', updateErr); })
+        .catch((updateErr) => { console.log(JSON.stringify(updateErr)); })
         .then(() => { setTimeout(() => { this._update() }, 1000 ); });
     },
 

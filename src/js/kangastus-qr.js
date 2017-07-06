@@ -6,7 +6,7 @@
   
   $.widget("custom.kangastusQr", { 
     options: {
-      size: 200,
+      size: 150,
       text: '',
       link: ''
     },

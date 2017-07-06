@@ -24,8 +24,8 @@
         $.getJSON(`${this.options.weatherUrl}/data/2.5/weather?q=${this.options.place}&APPID=${this.options.apiKey}`, (res) => {
           resolve(res.main);
         })
-        .fail((err) => {
-         reject(err);
+        .fail((jqXHR, textStatus, errorThrown) => {
+         reject(jqXHR);
         });
       });
     },
