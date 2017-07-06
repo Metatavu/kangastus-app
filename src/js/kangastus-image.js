@@ -10,7 +10,7 @@
     
     _create : function() {
       this.fs = null;
-      window.requestFileSystem(LocalFileSystem.TEMPORARY, 5 * 1024 * 1024, (fs) => {
+      window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, (fs) => {
         console.log('File system open');
         this.fs = fs;
       }, (err) => {
@@ -24,8 +24,8 @@
         if (!this.fs) {
           reject('File system not ready');
         } else {
-          this.fs.root.getFile(filename, { create: true, exclusive: false }, (fileEntry) => {
-            this._download(fileEntry, url)
+          this.fs.root.getFile(`${filename}.temp`, { create: true, exclusive: false }, (fileEntry) => {
+            this._download(fileEntry, url, filename)
               .then((fileUrl) => {
                 resolve(fileUrl);
               })
@@ -35,16 +35,19 @@
       });
     },
     
-    _download: function(fileEntry, url) {
+    _download: function(fileEntry, url, originalName) {
       return new Promise((resolve, reject) => {
         const fileTransfer = new FileTransfer();
         const fileURL = fileEntry.toURL();
-
         fileTransfer.download(
           url,
           fileURL,
           (entry) => {
-            resolve(entry.toURL());
+            window.resolveLocalFileSystemURL(cordova.file.dataDirectory, (dirEntry) => {
+              entry.moveTo(dirEntry, originalName, (movedEntry) => {
+                resolve(movedEntry.toURL());
+              }, reject);
+            }, reject);
           },
           reject,
           null,
