@@ -7,7 +7,7 @@
   $.widget("custom.kangastusTwitter", {
     
     options: {
-      hashes: ['trump', 'food'],
+      hashes: ['asuntomessut2017', 'mikkeli'],
       refreshRate: 25000,
       showRate: 30000,
       viewTime: 15000
