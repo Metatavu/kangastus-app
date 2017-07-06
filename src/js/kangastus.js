@@ -7,9 +7,13 @@
   $.widget("custom.kangastus", {
     
     options: {
+      peekTimeout: 10000,
+      peekTime: 3000
     },
     
     _create : function() {
+      this._peekTimer = null;
+      
       StatusBar.hide();
       AndroidFullScreen.immersiveMode(() => {}, () => {});
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
@@ -30,6 +34,8 @@
       this._resetSwiper((swiper) => {
         this._onIndexSlideVisible(swiper);
       });
+      
+      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
     },
 
     _onIndexSlideVisible: function(swiper) {
@@ -40,6 +46,7 @@
       $('.swiper-button-prev').hide();
       $('.header-container').hide();
       $(document.body).kangastusTwitter('startViewing');
+      $('.peek').hide();
     },
     
     _onContentSlideVisible: function() {
@@ -200,6 +207,25 @@
         })
         .catch((updateErr) => { console.log('Error updating item', updateErr); })
         .then(() => { setTimeout(() => { this._update() }, 1000 ); });
+    },
+    
+    _onPeekTimeout: function () {
+      $(document.body).kangastusDatabase('listKangastusItemsByParent', 0)
+        .then((rootItems) => {
+          const rootIndex = Math.round(Math.random() * rootItems.length);
+          const rootItem = rootItems[rootIndex]; 
+          $(document.body).kangastusDatabase('listKangastusItemsByParent', rootItem.parent)
+           .then((childItems) => {
+             const childIndex = Math.round(Math.random() * childItems.length);
+             const childItem = childItems[childIndex];
+             $(`#peek-${rootIndex}`).show("slide", { direction: "left" }, 300);
+             setTimeout(() => {
+               $(`#peek-${rootIndex}`).hide("slide", { direction: "left" }, 300);
+             }, this.options.peekTime);
+           });
+        });
+      
+      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
     },
 
     _onIndexKangastusItemTouchStart: function (e) {
