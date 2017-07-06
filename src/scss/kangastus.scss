@@ -423,3 +423,32 @@ body {
     color: #63b8f1;
   }
 }
+
+.peek {
+  position: absolute;
+  height: 567px;
+  width: 100%;
+  right: 0;
+  top: 0px;
+  z-index: 99999;
+  
+  text-align: center;
+  background-size: cover;
+  height: 567px;
+
+  .page-peek-content-container {
+    color: #fff;
+    min-height: 567px;
+    
+    .page-peek-title {
+      font-size: 65px;
+      padding-top: 140px;
+    }
+    
+    .page-peek-icon {
+      margin-top: 25px;
+      font-size: 125px;
+    }
+  }
+  
+}

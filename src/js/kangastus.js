@@ -7,9 +7,12 @@
   $.widget("custom.kangastus", {
     
     options: {
+      peekTimeout: 10000,
+      peekTime: 3000
     },
     
     _create : function() {
+      this._peekTimer = null;
       StatusBar.hide();
       AndroidFullScreen.immersiveMode(() => {}, () => {});
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
@@ -34,6 +37,8 @@
       this._resetSwiper((swiper) => {
         this._onIndexSlideVisible(swiper);
       });
+      
+      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
     },
 
     _onIndexSlideVisible: function(swiper) {
@@ -222,6 +227,7 @@
               if (item.colorMask) {
                 background += ',';
               }
+              
               background += `url(${item.localImageUrl})`;
             }
 
@@ -235,6 +241,59 @@
         })
         .catch((updateErr) => { console.log(JSON.stringify(updateErr)); })
         .then(() => { setTimeout(() => { this._update() }, 1000 ); });
+    },
+    
+    _createColormakedBackground(localImageUrl, colorMask) {
+      let background = '';
+      
+      if (colorMask) {
+        background += `linear-gradient(${colorMask}, ${colorMask})`
+      }
+
+      if (localImageUrl) {
+        if (colorMask) {
+          background += ',';
+        }
+              
+        background += `url(${localImageUrl})`;
+      }
+      
+      return background;
+    },
+    
+    _onPeekTimeout: function () {
+      $(document.body).kangastusDatabase('listKangastusItemsByParent', 0)
+        .then((rootItems) => {
+          const rootIndex = Math.round(Math.random() * (rootItems.length - 1));
+          const rootItem = rootItems[rootIndex]; 
+          
+          $(document.body).kangastusDatabase('listKangastusItemsByParent', rootItem.id)
+           .then((childItems) => {
+             const childIndex = Math.round(Math.random() * (childItems.length - 1));
+             const childItem = childItems[childIndex];
+             
+             const peekHtml = pugPeek({
+               item: childItem,
+               background: this._createColormakedBackground(rootItem.localImageUrl, rootItem.colorMask)
+             });
+             
+             $('<div>')
+               .css('margin-top', ((rootIndex * 567) + (rootIndex * 10)) + 'px')
+               .addClass('peek')
+               .html(peekHtml)
+               .appendTo(document.body)
+               .hide()
+               .show("slide", { direction: "right" }, 300);
+             
+             setTimeout(() => {
+               $(`.peek`).hide("slide", { direction: "left" }, 300, () => {
+                 $('.peek').remove();
+               });
+             }, this.options.peekTime);
+           });
+        });
+      
+      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
     },
 
     _onIndexKangastusItemTouchStart: function (e) {
