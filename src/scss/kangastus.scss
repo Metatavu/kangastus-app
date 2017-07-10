@@ -330,6 +330,7 @@ body {
     color: #000;
     margin-bottom: -20px;
     @include font-reqular(40px);
+    padding-bottom: 7px;
   }
   
   .footer-block {
@@ -337,17 +338,17 @@ body {
     padding-top: 35px;
     
     &.side-block {
-      padding-left: 15px;
+      padding-left: 30px;
       text-align: left;
       
       .text-container {
-        padding-top: 35px;
+        padding-top: 15px;
       }
     }
     
     small {
       color: #62baea;
-      font-size: 18px;
+      font-size: 20px;
     }
     
   }
@@ -425,30 +426,27 @@ body {
 }
 
 .peek {
-  position: absolute;
   height: 567px;
+  position: absolute;
   width: 100%;
   right: 0;
   top: 0px;
   z-index: 99999;
-  
   text-align: center;
-  background-size: cover;
-  height: 567px;
 
   .page-peek-content-container {
+    background-color: rgba(0,0,0,0.4);
     color: #fff;
-    min-height: 567px;
+    width: 100%;
+    bottom: 0;
+    position: absolute;
     
     .page-peek-title {
-      font-size: 65px;
-      padding-top: 140px;
+      padding-top:15px;
+      padding-bottom: 15px;
+      font-size: 55px;
     }
     
-    .page-peek-icon {
-      margin-top: 25px;
-      font-size: 125px;
-    }
   }
   
 }

@@ -7,18 +7,20 @@
   $.widget("custom.kangastus", {
     
     options: {
-      peekTimeout: 60000 * 3,
-      peekTime: 3000
+      peekTimeout: 40000,
+      peekTime: 4000
     },
     
     _create : function() {
-      this._peekTimer = null;
+      this._peekTimer = setInterval(this._onPeekTimeout.bind(this), this.options.peekTimeout);
       StatusBar.hide();
       AndroidFullScreen.immersiveMode(() => {}, () => {});
+      $(this.element).stopRoutine(getConfig().stoproutine);
       $(document.body).on("databaseInitialized", $.proxy(this._onDatabaseInitialized, this));
       $(document.body).on("touchend", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchEnd, this));
       $(document.body).on("touchend", '.home-btn-container', $.proxy(this._onHomeBtnTouchEnd, this));
       $(document.body).on("touchstart", $.proxy(this._onUserInteraction, this));
+      $(document.body).on("touchend",  '.swiper-button-next,.swiper-button-prev', function() { $(this).trigger('click'); });
       //$(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
       
       $(document.body).kangastusImage();
@@ -29,6 +31,8 @@
       $(document.body).kangastusClock();
       $(document.body).kangastusTwitter();
 
+      this.maxRenderingTimer = null;
+      this.prevRootIndex = null;
       this.targetPage = null;
       this.contentVisible = false;
       this.rendering = false;
@@ -37,8 +41,7 @@
       this._resetSwiper((swiper) => {
         this._onIndexSlideVisible(swiper);
       });
-      
-      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
+
     },
 
     _onIndexSlideVisible: function(swiper) {
@@ -51,7 +54,6 @@
       this.contentVisible = false;
       this._unsetReturnToHomeScreenTimer();
       $(document.body).kangastusTwitter('startViewing');
-      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
     },
     
     _onContentSlideVisible: function() {
@@ -63,19 +65,14 @@
       this.contentVisible = true;
       this._setReturnToHomeScreenTimer();
       $(document.body).kangastusTwitter('stopViewing');
-      
-      if (this._peekTimer) {
-        clearTimeout(this._peekTimer);
-      }
+      this.rendering = false;
+      this._clearMaxRenderingTimer();
+      this.swiper.unlockSwipes();
     },
 
     _onUserInteraction: function() {
       if (this.contentVisible) {
         this._setReturnToHomeScreenTimer();
-      }
-      
-      if (this._peekTimer) {
-        clearTimeout(this._peekTimer);
       }
     },
 
@@ -120,7 +117,7 @@
         loop: true,
         loopedSlides: 0
       });
-      
+      this.swiper.lockSwipes();
       if (typeof callback === 'function') {
         callback(this.swiper);
       }
@@ -131,18 +128,35 @@
     },
     
     _openSlidesByParent: function (parentId, parentBg, parentTitle) {
+      if (this.rendering) {
+        return;
+      } 
+      this.rendering = true;
       $('.peek').remove();
       $('.header-container').attr('style', parentBg);
       $('.header-title').text(parentTitle);
       this._renderSlidesByParent(parentId);
     },
 
-    _renderSlidesByParent: function(parent) {
-      if (this.rendering) {
-        return;
-      } 
+    _setMaxRenderingTimer: function() {
+      if (this.maxRenderingTimer) {
+        clearTimeout(this.maxRenderingTimer);
+      }
       
-      this.rendering = true;
+      this.maxRenderingTimer = setTimeout(() => {
+        this.rendering = false;
+      }, 5000);
+    },
+    
+    _clearMaxRenderingTimer: function() {
+      if (this.maxRenderingTimer) {
+        clearTimeout(this.maxRenderingTimer);
+        this.maxRenderingTimer = null;
+      }
+    },
+
+    _renderSlidesByParent: function(parent) {
+      this._setMaxRenderingTimer();
       $(document.body).kangastusDatabase('listKangastusItemsByParent', parseInt(parent))
         .then((items) => {
           const slides = [];
@@ -172,8 +186,7 @@
         })
         .catch((err) => {
           console.log('ERROR:' + err);
-        })
-        .then(() => { this.rendering = false; });
+        });
     }, 
     
     _postProcessContents: function () {
@@ -278,9 +291,18 @@
     },
     
     _onPeekTimeout: function () {
+      if (this.contentVisible) {
+        return;
+      }
+      
       $(document.body).kangastusDatabase('listKangastusItemsByParent', 0)
         .then((rootItems) => {
-          const rootIndex = Math.round(Math.random() * (rootItems.length - 1));
+          let rootIndex = Math.round(Math.random() * (rootItems.length - 1));
+          do {
+            rootIndex = Math.round(Math.random() * (rootItems.length - 1));
+          } while (rootIndex == this.prevRootIndex);
+          
+          this.prevRootIndex = rootIndex;
           const rootItem = rootItems[rootIndex]; 
           
           $(document.body).kangastusDatabase('listKangastusItemsByParent', rootItem.id)
@@ -289,35 +311,29 @@
              const childItem = childItems[childIndex];
              
              const peekHtml = pugPeek({
-               item: childItem,
-               background: this._createColormakedBackground(rootItem.localImageUrl, rootItem.colorMask)
+               item: childItem
              });
              
              $('<div>')
-               .css('margin-top', ((rootIndex * 567) + (rootIndex * 10)) + 'px')
+               .css('top', ((rootIndex * 567) + (rootIndex * 10)) + 'px')
                .addClass('peek')
                .html(peekHtml)
                .appendTo(document.body)
                .hide()
-               .show("slide", { direction: "right" }, 300)
+               .show("slide", { direction: "down" }, 600)
                .on("touchend", () => {
                  const parentTitle = rootItem.title.rendered;
                  const parentBg = this._createColormakedBackground(rootItem.localImageUrl, rootItem.colorMask);
-                 
-                 console.log(parentTitle, parentBg);
-                 
                  this._openSlidesByParent(rootItem.id, 'background: ' + parentBg, parentTitle);
                });
              
              setTimeout(() => {
-               $(`.peek`).hide("slide", { direction: "left" }, 300, () => {
+               $(`.peek`).hide("slide", { direction: "down" }, 600, () => {
                  $('.peek').remove();
                });
              }, this.options.peekTime);
            });
         });
-      
-      this._peekTimer = setTimeout(this._onPeekTimeout.bind(this), this.options.peekTimeout);
     },
 
     _onIndexKangastusItemTouchStart: function (e) {
@@ -325,6 +341,9 @@
     },
     
     _onIndexKangastusItemTouchEnd: function (e) {
+      if (this.contentVisible) {
+        return false;
+      }
       const parent = $(e.target).closest('.kangastus-item');
       const parentId = $(parent).attr('data-id');
       const parentTitle = $(parent).find('.index-title').text();

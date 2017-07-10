@@ -27,4 +27,5 @@
     <plugin name="cordova-plugin-fullscreen" spec="~1.1.0" />
     <plugin name="cordova-plugin-file-transfer" spec="~1.6.3" />
     <plugin name="cordova-plugin-file" spec="~4.3.3" />
+    <plugin name="cordova-plugin-kiosk" spec="https://github.com/honza889/cordova-plugin-kiosk.git" />
 </widget>
