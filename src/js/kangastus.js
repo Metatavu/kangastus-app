@@ -268,8 +268,7 @@
             $(document.body).kangastusDatabase("upsertKangastusItem", item.id, item);
           }
         })
-        .catch((updateErr) => { console.log(JSON.stringify(updateErr)); })
-        .then(() => { setTimeout(() => { this._update() }, 1000 ); });
+        .catch((updateErr) => { console.log(JSON.stringify(updateErr)); });
     },
     
     _createColormakedBackground(localImageUrl, colorMask) {
@@ -353,7 +352,7 @@
     },
 
     _onDatabaseInitialized: function () {
-      this._update();
+      setInterval($.proxy(this._update, this), 7000);
       setInterval($.proxy(this._renderIndex, this), 5000);
     }
   });
