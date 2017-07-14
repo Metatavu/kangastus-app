@@ -352,7 +352,7 @@
     },
 
     _onDatabaseInitialized: function () {
-      setInterval($.proxy(this._update, this), 7000);
+      setInterval($.proxy(this._update, this), 3000);
       setInterval($.proxy(this._renderIndex, this), 5000);
     }
   });

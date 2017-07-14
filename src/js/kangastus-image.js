@@ -24,13 +24,18 @@
         if (!this.fs) {
           reject('File system not ready');
         } else {
-          this.fs.root.getFile(`${filename}.temp`, { create: true, exclusive: false }, (fileEntry) => {
-            this._download(fileEntry, url, filename)
-              .then((fileUrl) => {
-                resolve(fileUrl);
-              })
-              .catch(reject);
-          }, reject);
+          window.resolveLocalFileSystemURL(`${cordova.file.dataDirectory}${filename}`, (fileEntry) => {
+            console.log('Skipping download since file exists');
+            resolve(fileEntry.toURL());
+          }, () => {
+            this.fs.root.getFile(`${filename}.temp`, { create: true, exclusive: false }, (tempFileEntry) => {
+              this._download(tempFileEntry, url, filename)
+                .then((fileUrl) => {
+                  resolve(fileUrl);
+                })
+                .catch(reject);
+            }, reject);
+          });
         }
       });
     },
