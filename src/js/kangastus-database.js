@@ -1,5 +1,5 @@
 /* jshint esversion: 6 */
-/* global getConfig, StatusBar, WPAPI */
+/* global getConfig, StatusBar, WPAPI, Promise */
 
 (function(){
   'use strict';
@@ -123,6 +123,33 @@
             } else {
               resolve(null);
             }
+          })
+          .catch(reject);
+      });
+    },
+
+    
+    deleteKangastusItem: function(id) {
+      return new Promise((resolve, reject) => {
+        this.executeTx('DELETE from Kangastus where id = ?', [id])
+          .then(() => {
+            resolve();
+          })
+          .catch(reject);
+      });
+    },
+    
+    listAllKangastusItems: function() {
+      return new Promise((resolve, reject) => {
+        this.executeTx('SELECT * from Kangastus')
+          .then((rs) => {
+            const result = [];
+            if (rs.rows) {
+              for (let i = 0; i < rs.rows.length; i++) {
+                result.push(JSON.parse(rs.rows.item(i).data));
+              }
+            }
+            resolve(result);
           })
           .catch(reject);
       });
