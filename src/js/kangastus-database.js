@@ -130,29 +130,21 @@
 
     
     deleteKangastusItem: function(id) {
-      return new Promise((resolve, reject) => {
-        this.executeTx('DELETE from Kangastus where id = ?', [id])
-          .then(() => {
-            resolve();
-          })
-          .catch(reject);
-      });
+      return this.executeTx('DELETE from Kangastus where id = ?', [id]);
     },
     
     listAllKangastusItems: function() {
-      return new Promise((resolve, reject) => {
-        this.executeTx('SELECT * from Kangastus')
-          .then((rs) => {
-            const result = [];
-            if (rs.rows) {
-              for (let i = 0; i < rs.rows.length; i++) {
-                result.push(JSON.parse(rs.rows.item(i).data));
-              }
+      return this.executeTx('SELECT * from Kangastus')
+        .then((rs) => {
+          const result = [];
+          if (rs.rows) {
+            for (let i = 0; i < rs.rows.length; i++) {
+              result.push(JSON.parse(rs.rows.item(i).data));
             }
-            resolve(result);
-          })
-          .catch(reject);
-      });
+          }
+
+          return result;
+        });
     },
     
     listKangastusItemsByParent: function(parent) {

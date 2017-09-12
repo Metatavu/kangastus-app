@@ -29,11 +29,11 @@
         $.ajax({
           url: `${this.wordpressUrl}${id}`,
           success: (data) => {
-            resolve(true);
+            resolve(false);
           },
           error: function (jqXHR, text, err) {
             if (jqXHR.status === 404 || jqXHR.status === 403) {
-              resolve(false);
+              resolve(true);
             } else {
               reject(err);
             }
@@ -87,8 +87,8 @@
         if (this.checkRemovedQueue.length > 0) {
           const pageId = this.checkRemovedQueue.shift();
           this._checkRemoved(pageId)
-            .then((found) => { 
-              if (!found) {
+            .then((removed) => { 
+              if (removed) {
                 resolve(pageId);
               } else {
                 resolve(null);
