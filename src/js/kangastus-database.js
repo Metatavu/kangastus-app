@@ -1,5 +1,5 @@
 /* jshint esversion: 6 */
-/* global getConfig, StatusBar, WPAPI */
+/* global getConfig, StatusBar, WPAPI, Promise */
 
 (function(){
   'use strict';
@@ -126,6 +126,25 @@
           })
           .catch(reject);
       });
+    },
+
+    
+    deleteKangastusItem: function(id) {
+      return this.executeTx('DELETE from Kangastus where id = ?', [id]);
+    },
+    
+    listAllKangastusItems: function() {
+      return this.executeTx('SELECT * from Kangastus')
+        .then((rs) => {
+          const result = [];
+          if (rs.rows) {
+            for (let i = 0; i < rs.rows.length; i++) {
+              result.push(JSON.parse(rs.rows.item(i).data));
+            }
+          }
+
+          return result;
+        });
     },
     
     listKangastusItemsByParent: function(parent) {

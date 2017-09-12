@@ -24,7 +24,7 @@
       //$(document.body).on("touchstart", '.index .kangastus-item', $.proxy(this._onIndexKangastusItemTouchStart, this));
       
       $(document.body).kangastusImage();
-      $(document.body).kangastusWordpress();    
+      $(document.body).kangastusWordpress(getConfig().wordpress);    
       $(document.body).kangastusDatabase();
       $(document.body).kangastusAnimation();
       $(document.body).kangastusWeather(getConfig().weather);
@@ -249,7 +249,7 @@
             item.background = null;
 
             if (item.colorMask) {
-              background += `linear-gradient(${item.colorMask}, ${item.colorMask})`
+              background += `linear-gradient(${item.colorMask}, ${item.colorMask})`;
             }
 
             if (item.localImageUrl) {
@@ -271,11 +271,22 @@
         .catch((updateErr) => { console.log(JSON.stringify(updateErr)); });
     },
     
+    _checkRemoved: function () {
+      $(document.body).kangastusWordpress('checkRemovedNext')
+        .then((idToRemove) => {
+          if (idToRemove) {
+            $(document.body).kangastusDatabase("deleteKangastusItem", idToRemove);
+            console.log(`Removed id: ${idToRemove}`);
+          }
+        })
+        .catch((updateErr) => { console.log(JSON.stringify(updateErr)); });
+    },
+    
     _createColormakedBackground(localImageUrl, colorMask) {
       let background = '';
       
       if (colorMask) {
-        background += `linear-gradient(${colorMask}, ${colorMask})`
+        background += `linear-gradient(${colorMask}, ${colorMask})`;
       }
 
       if (localImageUrl) {
@@ -353,6 +364,7 @@
 
     _onDatabaseInitialized: function () {
       setInterval($.proxy(this._update, this), 3000);
+      setInterval($.proxy(this._checkRemoved, this), 3000);
       setInterval($.proxy(this._renderIndex, this), 5000);
     }
   });
